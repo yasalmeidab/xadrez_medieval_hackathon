@@ -6,7 +6,7 @@ Desenvolva um jogo de xadrez medieval em HTML, CSS e JavaScript. O tabuleiro rep
 
 ## Estrutura do projeto
 
-- `basexadrez.html`: documento principal e todas as telas da aplicação.
+- `index.html`: documento principal e todas as telas da aplicação (antes chamado `basexadrez.html`; renomeado para o GitHub Pages abrir o jogo na raiz).
 - `style.css`: estilos, animações, transições e responsividade.
 - `script.js`: navegação, estado da partida, regras, bot e interações.
 - `imgs/`: imagens finais usadas no jogo. Os nomes no código devem corresponder aos arquivos reais.
@@ -14,7 +14,7 @@ Desenvolva um jogo de xadrez medieval em HTML, CSS e JavaScript. O tabuleiro rep
 - `especificacao-xadrez-medieval.pdf`: especificação original do projeto.
 - `PROJETO.md`: especificação completa extraída do PDF; consulte-o para requisitos detalhados.
 
-Mantenha um único arquivo HTML, um único arquivo CSS e um único arquivo JavaScript. Use `basexadrez.html` como base e preserve o que já funciona ao fazer alterações. Organize CSS e JavaScript em seções claras, sem criar arquivos separados por recurso.
+Mantenha um único arquivo HTML, um único arquivo CSS e um único arquivo JavaScript. Use `index.html` como base e preserve o que já funciona ao fazer alterações. Organize CSS e JavaScript em seções claras, sem criar arquivos separados por recurso.
 
 ## Experiência e telas
 

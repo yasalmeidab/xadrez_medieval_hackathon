@@ -1274,7 +1274,8 @@ const Sons = (() => {
      Tabuleiro.animarLance(S, mv) -> Promise   roda ANTES de o estado mudar
      Tabuleiro.marcarFim(...) / Tabuleiro.raio(...) / Tabuleiro.limparFim()   usados pelo Ambiente */
 const Tabuleiro = (() => {
-  let raiz, mesa, cena, area, camadaVoo, camadaFx, dica, botaoVista;
+  let raiz, mesa, cena, area, camadaVoo, camadaFx, camadaSeta, dica, botaoVista;
+  let setaAtual = null; // lance sugerido pela Ajuda do Mestre
   let aoClicarFn = () => {};
   const casas = [];
   let foco = [6, 4];
@@ -1455,6 +1456,10 @@ const Tabuleiro = (() => {
       }
       raiz.appendChild(fila);
     }
+    camadaSeta = document.createElement('div');
+    camadaSeta.className = 'seta-mestre';
+    camadaSeta.setAttribute('aria-hidden', 'true');
+    raiz.appendChild(camadaSeta);
     camadaVoo = document.createElement('div');
     camadaVoo.className = 'voo';
     camadaVoo.setAttribute('aria-hidden', 'true');
@@ -1497,6 +1502,26 @@ const Tabuleiro = (() => {
       for (let vc = 0; vc < 8; vc++) filas[vr].appendChild(casas[r][inv ? 7 - vc : vc]);
     }
     $('moldura').innerHTML = molduraSVG();
+    seta(setaAtual);
+  }
+
+  // Seta dourada no plano do tabuleiro: da casa de origem até a de destino (null apaga)
+  function seta(mv) {
+    setaAtual = mv || null;
+    if (!camadaSeta) return;
+    if (!mv) { camadaSeta.innerHTML = ''; return; }
+    const [ar, ac] = vis(mv.fr, mv.fc), [br, bc] = vis(mv.r, mv.c);
+    const x1 = ac + .5, y1 = ar + .5, x2 = bc + .5, y2 = br + .5;
+    const len = Math.hypot(x2 - x1, y2 - y1) || 1;
+    const xe = x2 - (x2 - x1) / len * .3, ye = y2 - (y2 - y1) / len * .3;
+    const casa = (r, c, cls) => `<rect class="${cls}" x="${c + .05}" y="${r + .05}" width=".9" height=".9" rx=".06"/>`;
+    camadaSeta.innerHTML = `<svg viewBox="0 0 8 8" focusable="false">
+      <defs><marker id="seta-mestre-ponta" viewBox="0 0 10 10" refX="1.5" refY="5" markerWidth="2.6" markerHeight="2.6" orient="auto">
+        <path d="M0 0L10 5L0 10z" fill="#f3d98b" stroke="#6e4a10" stroke-width="1"/></marker></defs>
+      ${casa(ar, ac, 'sm-de')}${casa(br, bc, 'sm-para')}
+      <line class="sm-contorno" x1="${x1}" y1="${y1}" x2="${xe.toFixed(3)}" y2="${ye.toFixed(3)}"/>
+      <line class="sm-linha" x1="${x1}" y1="${y1}" x2="${xe.toFixed(3)}" y2="${ye.toFixed(3)}" marker-end="url(#seta-mestre-ponta)"/>
+    </svg>`;
   }
 
   /* ---------- acessibilidade: setas, Enter/Espaço e tabindex móvel ---------- */
@@ -1873,7 +1898,7 @@ const Tabuleiro = (() => {
   }
   const retanguloCasa = (r, c) => casas[r][c].getBoundingClientRect();
 
-  return { montar, orientar, desenhar, animarLance, marcarFim, limparFim, raio, retanguloCasa, tremer };
+  return { montar, orientar, seta, desenhar, animarLance, marcarFim, limparFim, raio, retanguloCasa, tremer };
 })();
 
 /* ============================================================
@@ -4059,7 +4084,7 @@ function pergaminhoPeca(t, cor) {
       <span class="rg-roseta a" aria-hidden="true"></span><span class="rg-roseta b" aria-hidden="true"></span><span class="rg-roseta c" aria-hidden="true"></span><span class="rg-roseta d" aria-hidden="true"></span>
       <div class="rg-rolo-miolo">
         <h4 class="rg-rolo-titulo">${i.artigo} ${i.nome}</h4>
-        <figure class="rg-iluminura" ${t === 'Q' ? 'data-ovo="dama"' : ''} ${t === 'K' ? 'data-ovo="rei"' : ''}>${Pecas.svg(t, cor)}</figure>
+        <figure class="rg-iluminura" ${t === 'K' ? 'data-ovo="rei"' : ''}>${Pecas.svg(t, cor)}</figure>
         <p class="rg-lema">${LEMA_PECA[t]}</p>
         <p>${i.funcao}</p>
         <p><strong>Como se move:</strong> ${i.move}</p>
@@ -4154,7 +4179,7 @@ const Aprender = (() => {
 
   raiz.innerHTML = `
     <div class="ap-seletor" role="group" aria-label="Escolha uma peça">
-      ${ORDEM_PECAS.map(t => `<button type="button" class="ap-cartao" data-tipo="${t}" aria-pressed="false" aria-label="${INFO_PECA[t].nome}" ${t === 'Q' ? 'data-ovo="dama"' : ''}>${Pecas.svg(t, 'w')}<span>${INFO_PECA[t].nome}</span></button>`).join('')}
+      ${ORDEM_PECAS.map(t => `<button type="button" class="ap-cartao" data-tipo="${t}" aria-pressed="false" aria-label="${INFO_PECA[t].nome}">${Pecas.svg(t, 'w')}<span>${INFO_PECA[t].nome}</span></button>`).join('')}
     </div>
     <div class="ap-corpo">
       <div class="ap-tab-wrap"><div class="ap-tab-moldura"><div class="ap-tab" id="ap-tab" role="group" aria-label="Tabuleiro de demonstração"><div class="ap-pecas" id="ap-pecas"></div></div></div></div>
@@ -4325,8 +4350,9 @@ const Aprender = (() => {
    - Pokémon (pokébola): digitar "pokebola" -> pokébola rolando pela tela.
    - Zelda (Triforce): digitar "triforce" (ou ↑ ↑ ↓ ↓ ← → ← →, fora da partida) -> Triforce + espada mestra.
    - Zelda (baú): fazer um roque -> "Você abriu o baú! ♪ da-da-da-DAAA".
-   - Melanie Martinez: digitar "crybaby", ou clicar 7 vezes na Dama (cartão em Aprenda a Jogar
-     ou pergaminho da Dama em Regras > Função das peças) -> cores de casa de bonecas e lágrimas.
+   - Ajuda do Mestre: digitar "mestre" (mestre sorteado), "kasparov", "carlsen" ou "magnus" durante
+     a sua vez -> Garry Kasparov ou Magnus Carlsen entra e aponta no tabuleiro a melhor jogada,
+     calculada pelo motor do bot no nível Difícil. Só mostra a dica: quem joga é você.
    - Desenvolvedores: digitar "isadora", "nicolas" ou "yasmin" (um efeito para cada).
    - Créditos: clicar 5 vezes no título "Xadrez Medieval" do menu.
    - Mate do Pastor: dar xeque-mate antes do 10º lance.
@@ -4364,7 +4390,7 @@ const Ovos = (() => {
     document.body.classList.add(classe);
     setTimeout(() => document.body.classList.remove(classe), ms);
   }
-  // Partículas que caem (lágrimas, pétalas, bolhas)
+  // Partículas que caem (pétalas)
   function chuva(n, classe, glifo, ms) {
     let h = '';
     for (let i = 0; i < n; i++) {
@@ -4403,22 +4429,6 @@ const Ovos = (() => {
   function bau() {
     efeito('ovo-bau', '<span>&#9876;</span>', 2300);
     revelar('zelda-bau', 'Você abriu o baú! <strong>&#9834; da-da-da-DAAA</strong>', 2800, 'ovo-zelda');
-  }
-
-  const CHORAO = [
-    'Cry Baby: até a Dama chora quando o reino cai...',
-    'Dollhouse: atrás das muralhas todo reino parece perfeito, até o primeiro xeque.',
-    'Soap: lave as lágrimas, a guerra continua no próximo lance.',
-    'Play Date: os peões brincam de guerra, mas ninguém avisou que o rei jogava de verdade.'
-  ];
-  let ciclo = 0;
-  function crybaby() {
-    const msg = CHORAO[ciclo++ % CHORAO.length];
-    temporario('ovo-crybaby', 6500);
-    efeito('ovo-tinta', '', 6500);
-    chuva(16, 'lagrima', '&#9679;', 6500);
-    chuva(8, 'bolha', '&#9675;', 6500);
-    revelar('melanie', msg, 5200, 'ovo-melanie');
   }
 
   const DEVS = {
@@ -4466,8 +4476,94 @@ const Ovos = (() => {
     revelar('excalibur', 'Somente o verdadeiro rei retira a espada da pedra. Ou quem der o xeque-mate.', 4600, 'ovo-pastor');
   }
 
+  /* ---------- Ajuda do Mestre ---------- */
+  // Fotos do Wikimedia Commons (CC BY-SA 3.0): o crédito aparece junto da foto.
+  const MESTRES = {
+    kasparov: { nome: 'Garry Kasparov', titulo: 'Campeão mundial de 1985 a 2000', foto: 'imgs/mestre-kasparov.jpg', credito: 'Foto: Elke Wetzig (Elya), CC BY-SA 3.0, Wikimedia Commons' },
+    carlsen: { nome: 'Magnus Carlsen', titulo: 'Campeão mundial de 2013 a 2023', foto: 'imgs/mestre-carlsen.jpg', credito: 'Foto: Autopilot, CC BY-SA 3.0, Wikimedia Commons' }
+  };
+  let mestreVez = 0; // muda a cada chamada/lance: respostas atrasadas são descartadas
+
+  const podeAjudar = () => typeof S !== 'undefined' && S && document.body.dataset.tela === 'jogo' &&
+    !fimDeJogo() && !S.ocupado && !S.botPensando && !vezDoBot() && !vezDoRemoto() && !Dialogo.aberto();
+
+  function comentarLance(mv) {
+    const p = S.board[mv.fr][mv.fc];
+    let lance;
+    if (mv.f === 'ck') lance = 'roque curto';
+    else if (mv.f === 'cq') lance = 'roque longo';
+    else lance = `${NOME_PECA[p[1]]} ${nomeCasa(mv.fr, mv.fc)} → ${nomeCasa(mv.r, mv.c)}` + (mv.promo ? `, promovendo a ${NOME_PECA[mv.promo]}` : '');
+    const depois = Regras.situacao(Regras.aplicar(S, mv), []);
+    const casa = Regras.casaCapturada(S, mv), vitima = casa && S.board[casa[0]][casa[1]];
+    let dica;
+    if (depois.fim && depois.tipo === 'xequemate') dica = 'É xeque-mate! O rei inimigo não tem para onde fugir.';
+    else if (depois.xeque) dica = 'Xeque! Pressione o rei inimigo e tome a iniciativa.';
+    else if (vitima) dica = `Capture: ${NOME_PECA[vitima[1]]} vale ${VALOR_PECA[vitima[1]]} ponto${VALOR_PECA[vitima[1]] === 1 ? '' : 's'}.`;
+    else if (mv.f === 'ck' || mv.f === 'cq') dica = 'Primeiro, proteja o seu rei atrás das muralhas.';
+    else if (mv.promo) dica = 'Um peão que chega ao fim do tabuleiro vira um nobre.';
+    else dica = 'Melhore a posição das suas peças antes de atacar.';
+    return { lance, dica };
+  }
+
+  function fecharMestre() {
+    const painel = $('mestre');
+    painel.classList.remove('visivel');
+    setTimeout(() => { if (!painel.classList.contains('visivel')) painel.hidden = true; }, movimentoReduzido() ? 0 : 350);
+  }
+
+  async function mestre(qual) {
+    if (!podeAjudar()) {
+      aviso('O mestre só aparece no campo de batalha, na vez de um jogador.', 3500, 'ovo-aviso ovo-mestre');
+      return;
+    }
+    const m = MESTRES[qual] || MESTRES[Math.random() < .5 ? 'kasparov' : 'carlsen'];
+    const vez = ++mestreVez, partida = S.id, nLances = S.historico.length;
+    const painel = $('mestre');
+    $('mestre-foto').src = m.foto;
+    $('mestre-foto').alt = `Foto de ${m.nome}`;
+    $('mestre-nome').textContent = m.nome;
+    $('mestre-sub').textContent = m.titulo;
+    $('mestre-credito').textContent = m.credito;
+    $('mestre-lance').textContent = '';
+    $('mestre-texto').textContent = 'Deixe-me ver o tabuleiro…';
+    painel.dataset.estado = 'pensando';
+    Tabuleiro.seta(null);
+    painel.hidden = false;
+    void painel.offsetWidth;
+    painel.classList.add('visivel');
+    revelar('mestre', `<strong>${m.nome}</strong> veio ajudar o reino!`, 2600, 'ovo-mestre');
+
+    // o mesmo motor do bot Difícil (minimax com poda alpha-beta), para o lado que está jogando
+    const inicio = performance.now();
+    let mv = null;
+    try { mv = await Bot.escolher(Regras.copiar(S), 'dificil', S.historico.slice()); } catch (e) { console.error('Mestre:', e); }
+    const falta = 1300 - (performance.now() - inicio);
+    if (falta > 0) await esperar(falta);
+    if (vez !== mestreVez || painel.hidden) return;
+    if (!mv || !S || S.id !== partida || S.historico.length !== nLances) {
+      painel.dataset.estado = 'pronto';
+      $('mestre-texto').textContent = 'O tabuleiro mudou enquanto eu pensava. Chame-me de novo!';
+      return;
+    }
+    const { lance, dica } = comentarLance(mv);
+    painel.dataset.estado = 'pronto';
+    $('mestre-lance').textContent = lance;
+    $('mestre-texto').textContent = dica;
+    Tabuleiro.seta(mv);
+    som('segredo');
+  }
+
+  $('mestre-fechar').addEventListener('click', fecharMestre);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('mestre').hidden && !Dialogo.aberto()) fecharMestre(); });
+  // qualquer lance, reinício ou saída da partida apaga a dica
+  window.addEventListener('xadrez', e => {
+    const ev = e.detail && e.detail.evento;
+    if (ev === 'lance' || ev === 'inicio' || ev === 'xequemate' || ev === 'empate') { mestreVez++; Tabuleiro.seta(null); fecharMestre(); }
+  });
+  window.addEventListener('tela', e => { if (e.detail !== 'jogo' && !$('mestre').hidden) { mestreVez++; fecharMestre(); } });
+
   /* ---------- Teclado ---------- */
-  const PALAVRAS = { pokebola, triforce, crybaby, excalibur, isadora: () => dev('isadora'), nicolas: () => dev('nicolas'), yasmin: () => dev('yasmin') };
+  const PALAVRAS = { pokebola, triforce, excalibur, mestre: () => mestre(), kasparov: () => mestre('kasparov'), carlsen: () => mestre('carlsen'), magnus: () => mestre('carlsen'), isadora: () => dev('isadora'), nicolas: () => dev('nicolas'), yasmin: () => dev('yasmin') };
   const SETAS = { ArrowUp: '↑', ArrowDown: '↓', ArrowLeft: '←', ArrowRight: '→' };
   let buffer = '';
   window.addEventListener('keydown', e => {
@@ -4497,7 +4593,6 @@ const Ovos = (() => {
     if (e.target.closest('#titulo-jogo')) contar('titulo', 5, 2500, creditos);
     const ovo = e.target.closest('[data-ovo]');
     if (!ovo) return;
-    if (ovo.dataset.ovo === 'dama') contar('dama', 7, 4000, crybaby);
     if (ovo.dataset.ovo === 'rei') contar('rei', 5, 3000, reiVivas);
   });
 
@@ -4509,7 +4604,7 @@ const Ovos = (() => {
     else if (d.evento === 'xequemate' && typeof S !== 'undefined' && S.fullmoveNumber < 10) mateDoPastor();
   });
 
-  return { crybaby, triforce, pokebola, dev, creditos, achados: () => [...achados] };
+  return { mestre, triforce, pokebola, dev, creditos, achados: () => [...achados] };
 })();
 
 /* ============================================================

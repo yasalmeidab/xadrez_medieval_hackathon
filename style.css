@@ -1555,8 +1555,6 @@ input[type=text]:focus-visible{outline:none;background-color:rgba(255,250,230,.8
 .aviso.ovo-poke::before{content:"◓";color:#fff;background:linear-gradient(#e53935 48%,#222 48% 56%,#fff 56%)}
 .aviso.ovo-zelda{border-color:#2f7d3a;background:linear-gradient(180deg,#e8f0c4,#bcd07a)}
 .aviso.ovo-zelda::before{content:"▲";color:#f3d98b;background:radial-gradient(circle at 35% 30%,#4aa35a,#1f5a2a)}
-.aviso.ovo-melanie{border-color:#ff8cc4;background:linear-gradient(180deg,#fff0f7,#ffd3e8);color:#6b2c4b}
-.aviso.ovo-melanie::before{content:"♡";color:#fff;background:radial-gradient(circle at 35% 30%,#ffb3d9,#e0609f)}
 .aviso.ovo-isadora,.aviso.ovo-nicolas,.aviso.ovo-yasmin,.aviso.ovo-pastor{border-color:var(--ouro-escuro)}
 .aviso.ovo-pastor::before{content:"♚"}
 
@@ -1582,15 +1580,8 @@ input[type=text]:focus-visible{outline:none;background-color:rgba(255,250,230,.8
 .ovo-bau span{font-size:clamp(4rem,16vmin,9rem);color:#f3d98b;text-shadow:0 0 20px #d9b45a,0 0 50px #fff6d8;animation:ovo-bau 2.2s ease-out forwards}
 @keyframes ovo-bau{from{opacity:0;transform:translateY(60px) scale(.5)}35%{opacity:1;transform:translateY(-10px) scale(1.2)}to{opacity:0;transform:translateY(-70px) scale(1)}}
 
-/* Melanie Martinez: casa de bonecas rosa e pastel por alguns segundos */
-body.ovo-crybaby{--pergaminho:#ffe3ef;--pergaminho-claro:#fff2f8;--pergaminho-escuro:#f3b6d2;--ouro:#ff9ccf;--ouro-claro:#ffd0e8;--ouro-escuro:#d86aa5;
-  --vermelho:#e0609f;--verde:#8fd3c5;--verde-escuro:#5aa89a;--placa:#f7a8d0;--placa-claro:#ffd0e8;--placa-escuro:#d86aa5;--casa-clara:#fff0f6;--casa-escura:#9fd8f0}
-.ovo-tinta{background:rgba(255,160,210,.55);mix-blend-mode:color;animation:ovo-tinta 6.5s ease-in-out forwards}
-@keyframes ovo-tinta{0%{opacity:0}12%,85%{opacity:1}100%{opacity:0}}
 .ovo-chuva{display:block}
 .ovo-gota{position:absolute;top:-10%;animation-name:ovo-cai;animation-timing-function:linear;animation-fill-mode:both;animation-iteration-count:2}
-.ovo-gota.lagrima{color:#9fd8f0;text-shadow:0 0 8px #fff}
-.ovo-gota.bolha{color:#fff;text-shadow:0 0 6px #ffb3d9}
 .ovo-gota.petala{color:#f3d98b;text-shadow:0 0 8px #d9b45a}
 @keyframes ovo-cai{from{transform:translateY(0) rotate(0);opacity:1}to{transform:translateY(115vh) rotate(160deg);opacity:.5}}
 
@@ -1613,13 +1604,72 @@ body.ovo-crybaby{--pergaminho:#ffe3ef;--pergaminho-claro:#fff2f8;--pergaminho-es
 .ovo-curio{font-size:.95rem}
 .ovo-creditos .ovo-contagem{opacity:.6}
 
+/* Ajuda do Mestre: retrato do grande mestre + balão de pergaminho; a seta fica no tabuleiro */
+.aviso.ovo-mestre{border-color:var(--ouro-escuro)}
+.aviso.ovo-mestre::before{content:"♔"}
+.mestre{
+  position:fixed;left:clamp(.6rem,2vw,1.6rem);bottom:clamp(.6rem,2vh,1.4rem);z-index:58;
+  width:min(370px,calc(100vw - 1.2rem));display:flex;flex-direction:column;align-items:center;
+  opacity:0;transform:translateX(-115%) rotate(-4deg);transition:opacity .3s,transform .55s var(--ease-medieval);
+}
+.mestre.visivel{opacity:1;transform:none}
+.mestre-retrato{position:relative;z-index:2;margin:0 0 -2.2rem;display:flex;flex-direction:column;align-items:center}
+.mestre-moldura{
+  display:block;width:clamp(120px,15vw,168px);aspect-ratio:1;border-radius:50%;overflow:hidden;
+  border:5px solid var(--ouro);box-shadow:0 0 0 3px #3a2408,0 0 26px rgba(243,217,139,.65),0 10px 22px rgba(0,0,0,.7);
+  background:#1b120a;
+}
+.mestre-moldura img{display:block;width:100%;height:100%;object-fit:cover}
+#mestre-foto[src*="carlsen"]{object-position:50% 4%;transform:scale(1.9);transform-origin:50% 12%}
+#mestre-foto[src*="kasparov"]{object-position:50% 20%}
+.mestre[data-estado=pensando] .mestre-moldura{animation:mestre-pensa 1.4s ease-in-out infinite alternate}
+@keyframes mestre-pensa{from{box-shadow:0 0 0 3px #3a2408,0 0 14px rgba(243,217,139,.35),0 10px 22px rgba(0,0,0,.7)}to{box-shadow:0 0 0 3px #3a2408,0 0 34px rgba(243,217,139,.9),0 10px 22px rgba(0,0,0,.7)}}
+.mestre-retrato figcaption{
+  order:-1;margin-bottom:.3rem;padding:.05rem .5rem;border-radius:3px;font-size:.66rem;line-height:1.3;color:#e9dcc0;
+  background:rgba(10,6,3,.72);max-width:100%;text-align:center;
+}
+.mestre-fala{
+  position:relative;width:100%;padding:2.6rem 1.3rem 1.1rem;text-align:center;border-radius:8px;color:var(--tinta);
+  background:var(--ruido),radial-gradient(ellipse at 50% 30%,var(--pergaminho-claro),var(--pergaminho) 70%,var(--pergaminho-escuro));
+  border:3px solid #3a2408;box-shadow:inset 0 0 0 2px var(--ouro),inset 0 0 24px rgba(90,50,10,.3),0 14px 30px rgba(0,0,0,.7);
+}
+.mestre-rotulo{font-family:var(--fonte-versalete);font-size:.85rem;letter-spacing:.14em;text-transform:uppercase;color:var(--vermelho-escuro)}
+.mestre-nome{font-family:var(--fonte-gotica);font-weight:400;font-size:clamp(1.7rem,2.6vw,2.1rem);line-height:1.05;margin:.1rem 0 0}
+.mestre-sub{font-style:italic;font-size:.88rem;color:var(--tinta-suave);margin-bottom:.55rem}
+.mestre-lance{font-family:var(--fonte-versalete);font-size:1.3rem;color:var(--vermelho-escuro)}
+.mestre-lance:not(:empty)::before{content:"☛ ";color:var(--ouro-escuro)}
+.mestre-lance:empty{display:none}
+.mestre-texto{font-size:1rem;line-height:1.35;margin:.25rem 0 .85rem}
+.mestre[data-estado=pensando] .mestre-texto::after{content:"";display:inline-block;width:1.2em;text-align:left;animation:pontinhos 1.2s steps(4) infinite}
+/* seta no plano do tabuleiro (fica sob as peças em pé) */
+.seta-mestre{position:absolute;inset:0;pointer-events:none;transform:translateZ(1.5px)}
+.seta-mestre svg{display:block;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 0 .2rem rgba(255,226,140,.9))}
+.seta-mestre .sm-de,.seta-mestre .sm-para{fill:rgba(243,217,139,.28);stroke:#f3d98b;stroke-width:.05}
+.seta-mestre .sm-para{fill:rgba(255,236,170,.42);stroke:#fff3c0;animation:sm-pulso 1.1s ease-in-out infinite alternate}
+.seta-mestre .sm-contorno{stroke:#3a2408;stroke-width:.34;stroke-linecap:round;opacity:.75}
+.seta-mestre .sm-linha{stroke:#ffe08a;stroke-width:.24;stroke-linecap:round;opacity:.95;stroke-dasharray:12;stroke-dashoffset:12;animation:sm-traca .6s ease-out forwards}
+@keyframes sm-pulso{from{opacity:.55}to{opacity:1}}
+@keyframes sm-traca{to{stroke-dashoffset:0}}
+@media (max-width:900px){
+  .mestre{left:50%;bottom:.5rem;width:min(520px,calc(100vw - 1rem));flex-direction:row;align-items:flex-end;transform:translate(-50%,120%)}
+  .mestre.visivel{transform:translateX(-50%)}
+  .mestre-retrato{margin:0 -1.6rem 0 0}
+  .mestre-moldura{width:96px}
+  .mestre-retrato figcaption{position:absolute;bottom:-.3rem;left:0;width:150%;font-size:.55rem}
+  .mestre-fala{padding:.7rem .8rem .7rem 2.1rem;text-align:left}
+  .mestre-sub{display:none}
+  .mestre-texto{margin-bottom:.5rem}
+}
+
 @media (prefers-reduced-motion:reduce){
   .ovo-evolui{animation:none;opacity:.35}
   .ovo-silhueta,.ovo-pokebola i,.ovo-espada svg,.ovo-bau span,.ovo-muralha b,.ovo-salto span,.ovo-coroa span,.ovo-triforce{animation:none}
   .ovo-pokebola i,.ovo-espada svg{transform:none}
   .ovo-muralha b{transform:translateY(34px)}
   .ovo-gota{animation:none;top:20%}
-  .ovo-tinta{animation:none;opacity:.7}
+  .mestre{transition:none}
+  .mestre[data-estado=pensando] .mestre-moldura,.seta-mestre .sm-para,.mestre-texto::after{animation:none}
+  .seta-mestre .sm-linha{animation:none;stroke-dashoffset:0}
 }
 
 /* ============================================================

@@ -235,6 +235,24 @@
   <input id="audio-volume" type="range" min="0" max="100" value="60" aria-label="Volume">
 </div>
 
+<!-- Segredo "Ajuda do Mestre": um grande mestre entra e aponta a melhor jogada (preenchido em script.js) -->
+<aside id="mestre" class="mestre" aria-labelledby="mestre-rotulo" data-estado="pensando" hidden>
+  <figure class="mestre-retrato">
+    <span class="mestre-moldura"><img id="mestre-foto" src="imgs/mestre-kasparov.jpg" alt=""></span>
+    <figcaption id="mestre-credito"></figcaption>
+  </figure>
+  <div class="mestre-fala">
+    <p class="mestre-rotulo" id="mestre-rotulo">Ajuda do Mestre</p>
+    <h2 class="mestre-nome" id="mestre-nome"></h2>
+    <p class="mestre-sub" id="mestre-sub"></p>
+    <div aria-live="polite">
+      <p class="mestre-lance" id="mestre-lance"></p>
+      <p class="mestre-texto" id="mestre-texto"></p>
+    </div>
+    <button type="button" class="placa pequena" id="mestre-fechar">Obrigado, mestre!</button>
+  </div>
+</aside>
+
 <div id="transicao" class="transicao" aria-hidden="true"></div>
 <div id="aviso" class="aviso" role="status" aria-live="polite" hidden></div>
 
