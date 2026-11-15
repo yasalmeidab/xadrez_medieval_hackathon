@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Xadrez Medieval</title>
+<meta name="description" content="Dois reinos disputam um só tabuleiro. Capture o rei inimigo com um xeque-mate.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Pirata+One&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-tela="menu">
+
+<!-- ===== TELA: MENU ===== -->
+<section id="tela-menu" class="tela ativa" aria-labelledby="titulo-jogo">
+  <!-- cena de batalha (SVG gerado em 65-efeitos-telas.js) com parallax no eixo X -->
+  <div class="menu-fundo" id="menu-fundo" aria-hidden="true"></div>
+  <div class="menu-luz" aria-hidden="true"></div>
+  <div class="menu-brasas" id="menu-brasas" aria-hidden="true"></div>
+  <div class="menu-moldura" aria-hidden="true"></div>
+  <div class="menu-conteudo">
+    <h1 id="titulo-jogo" class="titulo-jogo" data-texto="Xadrez Medieval">Xadrez Medieval</h1>
+    <svg class="menu-filete" viewBox="0 0 400 20" aria-hidden="true"><path d="M0 10H170M230 10H400" stroke="currentColor" stroke-width="2"/><path d="M200 1L212 10 200 19 188 10Z" fill="currentColor"/><circle cx="176" cy="10" r="3" fill="currentColor"/><circle cx="224" cy="10" r="3" fill="currentColor"/></svg>
+    <p class="menu-frase"><span>Dois reinos disputam um só tabuleiro. Capture o rei inimigo com um xeque-mate.</span></p>
+    <nav class="menu-botoes" aria-label="Menu principal">
+      <button class="placa" data-acao="duelo">Duelo</button>
+      <button class="placa" data-acao="bot">Jogar contra Bot</button>
+      <button class="placa" data-acao="online">Multiplayer</button>
+      <button class="placa" data-acao="regras">Regras</button>
+      <button class="placa" data-acao="aprender">Aprenda a Jogar</button>
+    </nav>
+  </div>
+</section>
+
+<!-- ===== TELA: PREPARAR PARTIDA (nome + dificuldade) ===== -->
+<section id="tela-config" class="tela" aria-labelledby="config-titulo" hidden>
+  <div class="config-fundo" aria-hidden="true"></div>
+  <div class="rolo config-rolo">
+    <div class="pergaminho config-cartao">
+      <h2 id="config-titulo">Duelo</h2>
+      <form id="config-form" autocomplete="off">
+        <div class="campo-nome">
+          <label for="config-nome" id="config-rotulo">Nome da equipe</label>
+          <input id="config-nome" type="text" maxlength="24" required>
+        </div>
+        <fieldset id="config-dificuldade" hidden>
+          <legend>Escolha a dificuldade</legend>
+          <div class="dificuldades">
+            <label class="dif dif-facil"><input type="radio" name="dif" value="facil" checked><span class="dif-carta"><svg class="dif-icone" aria-hidden="true"><use href="#ico-facil"/></svg><b>Fácil</b><small>O adversário ainda está aprendendo...</small></span></label>
+            <label class="dif dif-medio"><input type="radio" name="dif" value="medio"><span class="dif-carta"><svg class="dif-icone" aria-hidden="true"><use href="#ico-medio"/></svg><b>Médio</b><small>O reino inimigo está analisando o tabuleiro.</small></span></label>
+            <label class="dif dif-dificil"><input type="radio" name="dif" value="dificil"><span class="dif-carta"><svg class="dif-icone" aria-hidden="true"><use href="#ico-dificil"/></svg><b>Difícil</b><small>O adversário está calculando sua próxima jogada.</small></span></label>
+          </div>
+        </fieldset>
+        <fieldset id="config-online" hidden>
+          <legend>Como deseja entrar na batalha?</legend>
+          <div class="sala-opcoes">
+            <label class="sala-op"><input type="radio" name="sala" value="criar" checked><span class="sala-carta"><b>Criar sala</b><small>Você comanda o Reino Branco e recebe um código para enviar ao adversário.</small></span></label>
+            <label class="sala-op"><input type="radio" name="sala" value="entrar"><span class="sala-carta"><b>Entrar em sala</b><small>Digite o código recebido e comande o Reino Negro.</small></span></label>
+          </div>
+          <div class="campo-nome campo-codigo" id="campo-codigo" hidden>
+            <label for="config-codigo">Código da sala</label>
+            <input id="config-codigo" type="text" maxlength="5" autocapitalize="characters" spellcheck="false" placeholder="Ex.: K7RQ2">
+          </div>
+        </fieldset>
+        <label class="check"><input type="checkbox" id="config-intro" checked> Mostrar introdução</label>
+        <div class="linha-botoes">
+          <button type="button" class="placa alt" data-acao="menu">Voltar</button>
+          <button type="submit" class="placa">Para a batalha!</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ===== TELA: INTRODUÇÃO ===== -->
+<section id="tela-intro" class="tela" aria-live="polite" hidden>
+  <div class="intro-luz" aria-hidden="true"></div>
+  <div class="intro-faiscas" id="intro-faiscas" aria-hidden="true"></div>
+  <div class="intro-cena">
+    <p class="intro-l1">Dois Reinos</p>
+    <div class="intro-brasoes" aria-hidden="true">
+      <svg class="intro-brasao intro-brasao-b" viewBox="0 0 100 100"><use href="#bras-b"/></svg>
+      <svg class="intro-brasao intro-brasao-n" viewBox="0 0 100 100"><use href="#bras-n"/></svg>
+      <span class="intro-clarao"></span>
+    </div>
+    <p class="intro-l2"><span class="reino-b">Reino Branco</span> <span class="intro-vs">vs</span> <span class="reino-n">Reino Negro</span></p>
+  </div>
+  <button class="placa pequena alt intro-pular" data-acao="pular-intro">Pular ›</button>
+</section>
+
+<!-- ===== TELA: PARTIDA ===== -->
+<section id="tela-jogo" class="tela" aria-labelledby="jogo-titulo" hidden>
+  <div class="ambiente" id="ambiente" aria-hidden="true"></div>
+  <header class="jogo-topo">
+    <h2 id="jogo-titulo" class="jogo-nome">Xadrez Medieval</h2>
+    <div class="turno" id="turno" role="status" data-cor="w">
+      <span class="turno-brasao" id="turno-brasao" aria-hidden="true"><svg class="tb-b" viewBox="0 0 100 100"><use href="#bras-b"/></svg><svg class="tb-n" viewBox="0 0 100 100"><use href="#bras-n"/></svg></span>
+      <span class="turno-texto" id="turno-texto">Vez do Reino Branco</span>
+    </div>
+    <div class="jogo-acoes">
+      <button class="placa pequena" data-acao="reiniciar">Reiniciar</button>
+      <button class="placa pequena" data-acao="regras">Regras</button>
+      <button class="placa pequena" data-acao="menu-sair">Menu</button>
+    </div>
+  </header>
+  <div class="jogo-corpo">
+    <aside class="placar placar-n" id="placar-b" aria-label="Placar do Reino Negro">
+      <div class="placar-cabeca"><span class="brasao brasao-n" aria-hidden="true"><svg viewBox="0 0 100 100"><use href="#bras-n"/></svg></span><div><h3>Reino Negro</h3><small id="nome-b">Pretas</small></div><b class="pontos" id="pontos-b">0</b></div>
+      <div class="capturadas" id="cap-b" aria-label="Peças capturadas pelo Reino Negro"></div>
+    </aside>
+    <div class="tabuleiro-area">
+      <div class="cena" id="cena">
+        <div class="tabuleiro-mesa" id="mesa">
+          <div class="piso" aria-hidden="true"></div>
+          <div class="sombra-tab" aria-hidden="true"></div>
+          <div class="caixa plinto" aria-hidden="true"><i class="lado t"></i><i class="lado f"></i><i class="lado e"></i><i class="lado d"></i></div>
+          <div class="caixa tab-corpo">
+            <i class="lado t" aria-hidden="true"></i><i class="lado f" aria-hidden="true"></i><i class="lado e" aria-hidden="true"></i><i class="lado d" aria-hidden="true"></i>
+            <div class="moldura" id="moldura" aria-hidden="true"></div>
+            <div class="tabuleiro" id="tabuleiro" role="grid" aria-label="Tabuleiro de xadrez"></div>
+          </div>
+        </div>
+      </div>
+      <p id="msg" class="msg" aria-live="polite"></p>
+    </div>
+    <aside class="placar placar-b" id="placar-w" aria-label="Placar do Reino Branco">
+      <div class="placar-cabeca"><span class="brasao brasao-b" aria-hidden="true"><svg viewBox="0 0 100 100"><use href="#bras-b"/></svg></span><div><h3>Reino Branco</h3><small id="nome-w">Brancas</small></div><b class="pontos" id="pontos-w">0</b></div>
+      <div class="capturadas" id="cap-w" aria-label="Peças capturadas pelo Reino Branco"></div>
+      <details class="historico"><summary>Crônica da batalha</summary><ol id="log"></ol></details>
+    </aside>
+  </div>
+</section>
+
+<!-- ===== TELA: REGRAS ===== -->
+<section id="tela-regras" class="tela" aria-labelledby="regras-titulo" hidden>
+  <div class="tela-cabeca">
+    <button class="placa pequena" data-acao="voltar">‹ Voltar</button>
+    <h2 id="regras-titulo">Regras do Reino</h2>
+  </div>
+  <div class="regras-conteudo" id="regras-conteudo">
+    <!-- preenchido pelo agente de regras -->
+  </div>
+</section>
+
+<!-- ===== TELA: APRENDA A JOGAR ===== -->
+<section id="tela-aprender" class="tela" aria-labelledby="aprender-titulo" hidden>
+  <div class="tela-cabeca">
+    <button class="placa pequena" data-acao="voltar">‹ Voltar</button>
+    <h2 id="aprender-titulo">Aprenda a Jogar</h2>
+  </div>
+  <div class="aprender-conteudo" id="aprender-conteudo">
+    <!-- preenchido pelo agente de aprendizado -->
+  </div>
+</section>
+
+<!-- ===== TELA: RESULTADO (vitória / derrota / empate) ===== -->
+<section id="tela-resultado" class="tela" aria-labelledby="resultado-titulo" hidden>
+  <div class="resultado-luz" aria-hidden="true"></div>
+  <div class="resultado-particulas" id="resultado-particulas" aria-hidden="true"></div>
+  <div class="resultado-cartao">
+    <div class="resultado-emblema" aria-hidden="true">
+      <svg class="resultado-brasao rb-b" viewBox="0 0 100 100"><use href="#bras-b"/></svg>
+      <svg class="resultado-brasao rb-n" viewBox="0 0 100 100"><use href="#bras-n"/></svg>
+      <div class="resultado-simbolo" id="resultado-simbolo"></div>
+    </div>
+    <p class="resultado-tipo" id="resultado-tipo">Xeque-mate</p>
+    <h2 id="resultado-titulo">O Reino Branco venceu</h2>
+    <p id="resultado-detalhe" class="resultado-detalhe"></p>
+    <div class="linha-botoes">
+      <button class="placa" data-acao="jogar-novamente">Jogar novamente</button>
+      <button class="placa alt" data-acao="menu">Voltar ao menu</button>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ELEMENTOS GLOBAIS ===== -->
+<!-- Símbolos SVG reutilizáveis (brasões dos reinos e ícones de dificuldade) -->
+<svg class="sprite" width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute;width:0;height:0;overflow:hidden">
+  <defs>
+    <path id="sp-moldura" d="M50 2C58 2 60 10 70 10L86 10C90 10 90 14 90 18C90 28 98 30 98 38L98 62C98 70 90 72 90 82C90 86 90 90 86 90L70 90C60 90 58 98 50 98C42 98 40 90 30 90L14 90C10 90 10 86 10 82C10 72 2 70 2 62L2 38C2 30 10 28 10 18C10 14 10 10 14 10L30 10C40 10 42 2 50 2Z"/>
+    <g id="sp-dama">
+      <circle cx="15" cy="4" r="3"/>
+      <path d="M8 16L6 10 11 13 15 8 19 13 24 10 22 16Z"/>
+      <ellipse cx="15" cy="18" rx="9" ry="2.6"/>
+      <path d="M10 20C11 30 8 36 5 44L25 44C22 36 19 30 20 20Z"/>
+      <path d="M3 44H27Q29 47 27 52H3Q1 47 3 44Z"/>
+    </g>
+    <symbol id="bras-n" viewBox="0 0 100 100">
+      <use href="#sp-moldura" fill="#0d0d0d"/>
+      <use href="#sp-moldura" fill="none" stroke="#d9b45a" stroke-width="1" opacity=".55" transform="translate(50 50) scale(.97) translate(-50 -50)"/>
+      <use href="#sp-moldura" fill="#4b4a4c" stroke="#222" stroke-width="1.5" transform="translate(50 50) scale(.86) translate(-50 -50)"/>
+      <use href="#sp-moldura" fill="none" stroke="#7a1219" stroke-width="1.2" transform="translate(50 50) scale(.8) translate(-50 -50)"/>
+      <text x="36" y="72" text-anchor="middle" font-family="UnifrakturMaguntia,Pirata One,serif" font-size="68" fill="#0a0a0b" stroke="#777" stroke-width=".6">P</text>
+      <g transform="translate(60 33) scale(.72)" fill="#101012" stroke="#8d8d94" stroke-width="1.1"><use href="#sp-dama"/></g>
+    </symbol>
+    <symbol id="bras-b" viewBox="0 0 100 100">
+      <use href="#sp-moldura" fill="#131313"/>
+      <use href="#sp-moldura" fill="none" stroke="#e2bf62" stroke-width="1" opacity=".7" transform="translate(50 50) scale(.97) translate(-50 -50)"/>
+      <use href="#sp-moldura" fill="#d2d2d0" stroke="#3b3b3b" stroke-width="1.5" transform="translate(50 50) scale(.86) translate(-50 -50)"/>
+      <use href="#sp-moldura" fill="none" stroke="#8a8a86" stroke-width="1.2" transform="translate(50 50) scale(.8) translate(-50 -50)"/>
+      <text x="36" y="72" text-anchor="middle" font-family="UnifrakturMaguntia,Pirata One,serif" font-size="68" fill="#fff" stroke="#8a8a8a" stroke-width=".8">B</text>
+      <g transform="translate(60 33) scale(.72)" fill="#efeeea" stroke="#777" stroke-width="1.1"><use href="#sp-dama"/></g>
+    </symbol>
+    <symbol id="ico-facil" viewBox="0 0 48 48">
+      <g fill="currentColor" stroke="#1b120a" stroke-width="2" stroke-linejoin="round">
+        <path d="M24 28C14 28 8 22 8 12 18 12 24 18 24 28Z"/><path d="M24 24C24 14 30 8 40 8 40 18 34 24 24 24Z"/>
+        <path d="M22 26H26L27 44H21Z"/>
+      </g>
+    </symbol>
+    <g id="sp-espada" fill="currentColor" stroke="#1b120a" stroke-width="2" stroke-linejoin="round">
+      <path d="M24 3L28 9V30H20V9Z"/><path d="M11 30H37V35H11Z"/><path d="M21.5 35H26.5V42H21.5Z"/><circle cx="24" cy="44.5" r="3"/>
+    </g>
+    <symbol id="ico-medio" viewBox="0 0 48 48"><use href="#sp-espada"/></symbol>
+    <symbol id="ico-dificil" viewBox="0 0 48 48">
+      <g transform="rotate(38 24 24)"><use href="#sp-espada"/></g>
+      <g transform="rotate(-38 24 24)"><use href="#sp-espada"/></g>
+      <path d="M15 13L17 5 22 9 24 3 26 9 31 5 33 13Z" fill="#d9b45a" stroke="#1b120a" stroke-width="2" stroke-linejoin="round"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div id="dialogo" class="dialogo" role="dialog" aria-modal="true" aria-labelledby="dialogo-titulo" hidden>
+  <div class="rolo">
+    <div class="pergaminho dialogo-cartao">
+      <h2 id="dialogo-titulo"></h2>
+      <div id="dialogo-corpo"></div>
+      <div class="linha-botoes" id="dialogo-botoes"></div>
+    </div>
+  </div>
+</div>
+
+<div class="audio-ctl" id="audio-ctl">
+  <button id="audio-mudo" class="audio-botao" aria-label="Silenciar som" aria-pressed="false">🔊</button>
+  <input id="audio-volume" type="range" min="0" max="100" value="60" aria-label="Volume">
+</div>
+
+<div id="transicao" class="transicao" aria-hidden="true"></div>
+<div id="aviso" class="aviso" role="status" aria-live="polite" hidden></div>
+
+<!-- PeerJS: conexão direta entre os navegadores no modo Multiplayer -->
+<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
