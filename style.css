@@ -1651,7 +1651,7 @@ input[type=text]:focus-visible{outline:none;background-color:rgba(255,250,230,.8
 @keyframes sm-pulso{from{opacity:.55}to{opacity:1}}
 @keyframes sm-traca{to{stroke-dashoffset:0}}
 @media (max-width:900px){
-  .mestre{left:50%;bottom:.5rem;width:min(520px,calc(100vw - 1rem));flex-direction:row;align-items:flex-end;transform:translate(-50%,120%)}
+  .mestre{left:50%;bottom:3.4rem;width:min(520px,calc(100vw - 1rem));flex-direction:row;align-items:flex-end;transform:translate(-50%,120%)}
   .mestre.visivel{transform:translateX(-50%)}
   .mestre-retrato{margin:0 -1.6rem 0 0}
   .mestre-moldura{width:96px}
@@ -1709,6 +1709,7 @@ input[type=text]:focus-visible{outline:none;background-color:rgba(255,250,230,.8
 .audio-botao[aria-pressed="true"]::after{transform:rotate(-45deg) scaleX(1)}
 .audio-botao:hover{transform:translateY(-1px);box-shadow:inset 0 -2px 3px #6a4a1c66,0 0 8px var(--ouro),0 1px 2px #000a}
 .audio-botao:active{transform:translateY(1px)}
+.audio-botao{touch-action:manipulation} /* dois toques rápidos não dão zoom (segredo do mestre) */
 .audio-botao:focus-visible,.audio-ctl input:focus-visible{outline:3px solid var(--ouro-claro);outline-offset:2px}
 
 /* deslizante: sulco de ferro com marcador dourado */

@@ -4353,6 +4353,7 @@ const Aprender = (() => {
    - Ajuda do Mestre: digitar "mestre" (mestre sorteado), "kasparov", "carlsen" ou "magnus" durante
      a sua vez -> Garry Kasparov ou Magnus Carlsen entra e aponta no tabuleiro a melhor jogada,
      calculada pelo motor do bot no nível Difícil. Só mostra a dica: quem joga é você.
+     No celular: tocar duas vezes no sino do som durante a partida. Limite: 3 ajudas por partida.
    - Desenvolvedores: digitar "isadora", "nicolas" ou "yasmin" (um efeito para cada).
    - Créditos: clicar 5 vezes no título "Xadrez Medieval" do menu.
    - Mate do Pastor: dar xeque-mate antes do 10º lance.
@@ -4483,6 +4484,8 @@ const Ovos = (() => {
     carlsen: { nome: 'Magnus Carlsen', titulo: 'Campeão mundial de 2013 a 2023', foto: 'imgs/mestre-carlsen.jpg', credito: 'Foto: Autopilot, CC BY-SA 3.0, Wikimedia Commons' }
   };
   let mestreVez = 0; // muda a cada chamada/lance: respostas atrasadas são descartadas
+  const LIMITE_MESTRE = 3; // ajudas por partida (por dispositivo)
+  let usosMestre = { partida: null, n: 0 };
 
   const podeAjudar = () => typeof S !== 'undefined' && S && document.body.dataset.tela === 'jogo' &&
     !fimDeJogo() && !S.ocupado && !S.botPensando && !vezDoBot() && !vezDoRemoto() && !Dialogo.aberto();
@@ -4516,12 +4519,19 @@ const Ovos = (() => {
       aviso('O mestre só aparece no campo de batalha, na vez de um jogador.', 3500, 'ovo-aviso ovo-mestre');
       return;
     }
+    if (usosMestre.partida !== S.id) usosMestre = { partida: S.id, n: 0 };
+    if (usosMestre.n >= LIMITE_MESTRE) {
+      aviso(`O mestre já ajudou ${LIMITE_MESTRE} vezes nesta partida. Agora a batalha é com você!`, 3800, 'ovo-aviso ovo-mestre');
+      return;
+    }
+    usosMestre.n++;
     const m = MESTRES[qual] || MESTRES[Math.random() < .5 ? 'kasparov' : 'carlsen'];
     const vez = ++mestreVez, partida = S.id, nLances = S.historico.length;
     const painel = $('mestre');
     $('mestre-foto').src = m.foto;
     $('mestre-foto').alt = `Foto de ${m.nome}`;
     $('mestre-nome').textContent = m.nome;
+    $('mestre-rotulo').textContent = `Ajuda do Mestre · ${usosMestre.n} de ${LIMITE_MESTRE}`;
     $('mestre-sub').textContent = m.titulo;
     $('mestre-credito').textContent = m.credito;
     $('mestre-lance').textContent = '';
@@ -4591,6 +4601,8 @@ const Ovos = (() => {
   document.addEventListener('click', e => {
     if (!e.target.closest) return;
     if (e.target.closest('#titulo-jogo')) contar('titulo', 5, 2500, creditos);
+    // celular (sem teclado): dois toques no sino do som chamam o mestre durante a partida
+    if (e.target.closest('#audio-mudo')) contar('sino', 2, 700, () => { if (document.body.dataset.tela === 'jogo') mestre(); });
     const ovo = e.target.closest('[data-ovo]');
     if (!ovo) return;
     if (ovo.dataset.ovo === 'rei') contar('rei', 5, 3000, reiVivas);
